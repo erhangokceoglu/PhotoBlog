@@ -16,5 +16,7 @@ namespace PhotoBlog.Data
         public string Photo { get; set; } = null!;
 
         public DateTime CreatedTime { get; set; } = DateTime.Now;
+
+        public List<Tag> Tags { get; set; } = new();
     }
 }

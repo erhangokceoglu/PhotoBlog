@@ -17,19 +17,22 @@ body {
     margin-bottom: 60px;
 }
 
-..posts {
+.posts {
     max-width: 600px;
     margin: 0 auto;
-    k
 }
 
 .post-image > img {
     width: 100%;
 }
 
-.post-time {
-    text-align: right;
-    font-style: italic;
+.post-details {
+    display: flex;
+    justify-content: space-between;
     font-size: .8em;
-    padding: .5rem 0 0 0;
+    padding: .3rem 0;
+}
+
+.post-time {
+    font-style: italic;
 }
