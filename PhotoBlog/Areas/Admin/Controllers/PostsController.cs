@@ -128,18 +128,25 @@ namespace PhotoBlog.Areas.Admin.Controllers
             }
 
             var post = await _context.Posts.FindAsync(id);
+
             if (post == null)
             {
                 return NotFound();
             }
+            await _context.Entry(post).Collection(x => x.Tags).LoadAsync();
+
             var vm = new EditViewModel()
             {
                 Id = post.Id,
                 Title = post.Title,
-                Description = post.Description
+                Description = post.Description,
+                Tags = post.Tags.Select(x => x.Name).ToHashSet()
             };
+
+            LoadTags();
             return View(vm);
         }
+
 
         // POST: Admin/Posts/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -161,10 +168,28 @@ namespace PhotoBlog.Areas.Admin.Controllers
                     DeletePhoto(post.Photo);
                     post.Photo = SavePhoto(vm.Photo);
                 }
-                await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                await _context.Entry(post).Collection(x => x.Tags).LoadAsync();
+                //post.Tags.RemoveRange(0, post.Tags.Count);
+                post.Tags.RemoveAll(x=> true);
+
+                foreach (string tagName in vm.Tags!)
+                {
+                    var tag = await _context.Tags.FirstOrDefaultAsync(x => x.Name == tagName);
+
+                    if (tag == null)
+                    {
+                        tag = new Tag() { Name = tagName };
+                    }
+
+                    post.Tags.Add(tag);
+
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction(nameof(Index));
+                }
             }
+            LoadTags(vm.Tags);
             return View(vm);
         }
 

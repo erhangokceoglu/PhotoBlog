@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PhotoBlog.Data;
 using PhotoBlog.Models;
 using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace PhotoBlog.Controllers
 {
@@ -17,13 +18,36 @@ namespace PhotoBlog.Controllers
             _db = db;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string? q)
         {
-            var posts = _db.Posts
-                .Include(x=>x.Tags)
+            IQueryable<Post> query = _db.Posts.Include(x => x.Tags);
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                q = q.Trim();
+
+                if (q.StartsWith("#"))
+                {
+                    var tag = q.Substring(1);
+                    query = query.Where(x => x.Tags.Any(t => t.Name == tag));
+                }
+                else
+                {
+                    query = query.Where(x => x.Title.Contains(q) || x.Description!.Contains(q));
+                }
+
+            };
+
+            var posts = query
                 .OrderByDescending(x => x.CreatedTime)
                 .ToList();
-            return View(posts);
+
+            var vm = new HomeViewModel()
+            {
+                Posts = posts,
+                Search = q
+            };
+            return View(vm);
         }
 
         public IActionResult Privacy()

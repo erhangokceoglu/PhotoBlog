@@ -10,7 +10,7 @@ namespace PhotoBlog.Data
         public string Title { get; set; } = null!;
 
         [MaxLength(400)]
-        public string? Description { get; set; }
+        public string? Description { get; set; } =string.Empty;
 
         [MaxLength(255)]
         public string Photo { get; set; } = null!;
